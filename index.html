@@ -1,0 +1,402 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ELEVEN | Player Studio</title>
+<script src="https://js.puter.com/v2/"></script>
+<style>
+:root {
+  --bg:#080d18;
+  --panel:#111d30;
+  --line:#293b55;
+  --blue:#3987ff;
+  --text:#f1f5fb;
+  --muted:#9aa9bd;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Arial, sans-serif;padding:20px;
+}
+main{max-width:1050px;margin:auto}
+header{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:25px;
+}
+.logo{
+  background:linear-gradient(135deg,#4295ff,#174b9d);
+  padding:13px;border-radius:12px;font-weight:900;font-size:20px;
+}
+h1{font-size:22px;letter-spacing:4px;margin:0}
+header small{color:var(--muted);letter-spacing:3px}
+h2{font-size:27px;margin-bottom:5px}
+p{color:var(--muted)}
+.layout{
+  display:grid;grid-template-columns:1fr 1fr;gap:18px;
+}
+.panel{
+  background:var(--panel);border:1px solid var(--line);
+  padding:20px;border-radius:16px;
+}
+h3{
+  font-size:13px;letter-spacing:2px;
+  color:#b7c7dc;margin-top:0;
+}
+label{display:block;margin:14px 0 7px;font-size:13px;font-weight:bold}
+select,input[type=text]{
+  width:100%;padding:11px;background:#0a1220;
+  color:white;border:1px solid var(--line);
+  border-radius:9px;
+}
+input[type=color]{width:45px;height:35px;border:0;background:none}
+.colorbox{display:flex;align-items:center;gap:10px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.mode{
+  background:#0a1220;color:white;padding:12px;
+  border:1px solid var(--line);border-radius:9px;cursor:pointer;
+}
+.mode.active{border-color:var(--blue);background:#142b4c}
+.mode small{display:block;color:var(--muted);margin-top:5px}
+button{cursor:pointer;font-size:14px}
+.actions{display:flex;gap:10px;margin-top:20px}
+.primary,.secondary,.download{
+  padding:13px;border-radius:10px;font-weight:bold;
+}
+.primary{
+  flex:1;background:var(--blue);color:white;border:0;
+}
+.secondary,.download{
+  background:#15263e;color:white;border:1px solid var(--line);
+}
+.primary:disabled{opacity:.5}
+.preview{
+  min-height:420px;border-radius:12px;
+  background:radial-gradient(#1d3456,#09111e);
+  display:grid;place-items:center;overflow:hidden;
+  position:relative;
+}
+.preview img{
+  width:100%;height:420px;object-fit:cover;display:none;
+}
+.empty{text-align:center;color:#607b9e}
+.empty strong{font-size:40px;letter-spacing:5px}
+.loader{
+  display:none;position:absolute;inset:0;
+  background:#08101ddd;align-items:center;
+  justify-content:center;flex-direction:column;gap:15px;
+}
+.spinner{
+  width:35px;height:35px;border:3px solid #ffffff33;
+  border-top-color:#3987ff;border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.metadata{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;
+}
+.meta{
+  background:#0a1220;padding:10px;border-radius:9px;
+  min-width:0;
+}
+.meta span{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}
+.meta strong{font-size:12px;overflow-wrap:anywhere}
+.download{width:100%;margin-top:12px}
+.download:disabled{opacity:.4}
+.notice{
+  margin-top:16px;padding:12px;background:#0a1525;
+  border:1px solid var(--line);border-radius:10px;
+  font-size:11px;color:var(--muted);
+}
+.error{
+  display:none;color:#ffc1c1;background:#2b151c;
+  border:1px solid #75434b;padding:12px;
+  border-radius:9px;margin-top:12px;font-size:12px;
+}
+@media(max-width:750px){
+  .layout{grid-template-columns:1fr}
+  body{padding:12px}
+}
+@media(max-width:420px){
+  .metadata{grid-template-columns:1fr 1fr}
+  .metadata .meta:first-child{grid-column:1/-1}
+}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="logo">11</div>
+  <div>
+    <h1>ELEVEN</h1>
+    <small>PLAYER STUDIO</small>
+  </div>
+</header>
+
+<h2>Crea tu próximo jugador.</h2>
+<p>Diseña uniformes y genera retratos futbolísticos.</p>
+
+<div class="layout">
+
+<section class="panel">
+<h3>01 / CONFIGURACIÓN</h3>
+
+<label>Tipo de retrato</label>
+<div class="modes">
+  <button class="mode active" id="normal" onclick="setMode('normal')">
+    Normal<small>De frente</small>
+  </button>
+  <button class="mode" id="special" onclick="setMode('special')">
+    Especial<small>Pose dinámica</small>
+  </button>
+</div>
+
+<div id="poseField" style="display:none">
+<label>Pose especial</label>
+<select id="pose">
+  <option value="arms crossed, confident expression">Brazos cruzados</option>
+  <option value="celebrating a goal with one fist raised">Celebrando</option>
+  <option value="running forward">Corriendo</option>
+  <option value="shouting in celebration">Gritando</option>
+  <option value="focused expression">Concentrado</option>
+  <option value="pointing forward">Señalando</option>
+</select>
+</div>
+
+<label>Estilo del uniforme</label>
+<select id="kit">
+  <option value="modern professional football kit">Moderno</option>
+  <option value="classic retro football kit">Clásico</option>
+  <option value="minimalist football kit">Minimalista</option>
+  <option value="futuristic football kit">Futurista</option>
+  <option value="national team inspired kit without emblems">Inspirado en selecciones</option>
+</select>
+
+<label>Color principal</label>
+<div class="colorbox">
+  <input type="color" id="color" value="#1768d4">
+  <span id="hex">#1768D4</span>
+</div>
+
+<label>Fondo</label>
+<select id="background">
+  <option value="dark premium photo studio">Estudio oscuro</option>
+  <option value="blue stadium lights">Estadio con luces azules</option>
+  <option value="blurred football stadium at night">Estadio desenfocado</option>
+  <option value="light grey studio background">Gris claro</option>
+</select>
+
+<label>Mangas</label>
+<select id="sleeves">
+  <option value="short sleeves">Cortas</option>
+  <option value="long sleeves">Largas</option>
+</select>
+
+<label>Cuello</label>
+<select id="collar">
+  <option value="round collar">Redondo</option>
+  <option value="V-neck collar">En V</option>
+  <option value="polo collar">Tipo polo</option>
+  <option value="collarless neckline">Sin cuello</option>
+</select>
+
+<label>Detalles opcionales</label>
+<input type="text" id="details" maxlength="120"
+placeholder="Ej. franjas blancas en hombros">
+
+<div class="actions">
+  <button class="primary" id="generate" onclick="generate()">✦ Generar jugador</button>
+  <button class="secondary" onclick="randomize()">Aleatorio</button>
+</div>
+
+<div class="notice">
+  Puter puede requerir iniciar sesión y tiene límites de uso gratuito.
+  No actives compras ni mejoras de pago. Si se agota la cuota, espera
+  a que vuelva a estar disponible.
+</div>
+</section>
+
+<section class="panel">
+<h3>02 / RESULTADO</h3>
+
+<div class="preview">
+  <div class="empty" id="empty">
+    <strong>ELEVEN</strong>
+    <p>Tu jugador aparecerá aquí.</p>
+  </div>
+  <img id="result" alt="Jugador generado">
+  <div class="loader" id="loader">
+    <div class="spinner"></div>
+    <strong>Generando jugador...</strong>
+  </div>
+</div>
+
+<div class="metadata">
+  <div class="meta"><span>NOMBRE</span><strong id="name">—</strong></div>
+  <div class="meta"><span>POSICIÓN</span><strong id="position">—</strong></div>
+  <div class="meta"><span>NACIONALIDAD</span><strong id="nation">—</strong></div>
+</div>
+
+<button class="download" id="download" disabled onclick="downloadImage()">
+  ↓ Descargar PNG
+</button>
+
+<div class="error" id="error"></div>
+</section>
+
+</div>
+</main>
+
+<script>
+const players=[
+["Mateo Ríos","Argentina","🇦🇷"],
+["Thiago Ferreyra","Argentina","🇦🇷"],
+["Diego Quesada","Costa Rica","🇨🇷"],
+["André Carvalho","Portugal","🇵🇹"],
+["Lucas Moreira","Brasil","🇧🇷"],
+["Enzo Bianchi","Italia","🇮🇹"],
+["Hugo Laurent","Francia","🇫🇷"],
+["Adrián Vega","España","🇪🇸"],
+["Noah Fischer","Alemania","🇩🇪"],
+["Youssef Amrani","Marruecos","🇲🇦"],
+["Kenji Sato","Japón","🇯🇵"],
+["Daniel Okafor","Nigeria","🇳🇬"],
+["Santiago Herrera","Colombia","🇨🇴"],
+["Emiliano Torres","México","🇲🇽"],
+["Nicolás Suárez","Uruguay","🇺🇾"],
+["Oliver Bennett","Inglaterra","🏴"],
+["Milan de Vries","Países Bajos","🇳🇱"],
+["Ethan Brooks","Canadá","🇨🇦"]
+];
+
+const positions=["POR","DFC","LI","LD","MCD","MC","MCO","EI","ED","DC"];
+let mode="normal";
+let imageUrl="";
+
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+
+function setMode(m){
+  mode=m;
+  document.getElementById("normal").classList.toggle("active",m==="normal");
+  document.getElementById("special").classList.toggle("active",m==="special");
+  document.getElementById("poseField").style.display=m==="special"?"block":"none";
+}
+
+document.getElementById("color").addEventListener("input",e=>{
+  document.getElementById("hex").textContent=e.target.value.toUpperCase();
+});
+
+function randomize(){
+  setMode(Math.random()<.55?"normal":"special");
+  for(const id of ["pose","kit","background","sleeves","collar"]){
+    const el=document.getElementById(id);
+    el.selectedIndex=Math.floor(Math.random()*el.options.length);
+  }
+  const colors=["#1768d4","#151923","#f1f3f5","#c92535","#16834b","#d3a52c","#673ab7"];
+  document.getElementById("color").value=pick(colors);
+  document.getElementById("hex").textContent=document.getElementById("color").value.toUpperCase();
+  document.getElementById("details").value=pick([
+    "líneas diagonales sutiles",
+    "detalles geométricos discretos",
+    "paneles laterales en contraste",
+    "ribetes finos en las mangas",
+    ""
+  ]);
+}
+
+async function generate(){
+  const error=document.getElementById("error");
+  error.style.display="none";
+
+  if(!window.puter || !puter.ai || !puter.ai.txt2img){
+    showError("No se pudo cargar Puter.js. Revisa tu conexión.");
+    return;
+  }
+
+  const btn=document.getElementById("generate");
+  btn.disabled=true;
+  document.getElementById("loader").style.display="flex";
+  document.getElementById("download").disabled=true;
+
+  try{
+    const player=pick(players);
+    const position=pick(positions);
+
+    document.getElementById("name").textContent=player[0];
+    document.getElementById("position").textContent=position;
+    document.getElementById("nation").textContent=player[2]+" "+player[1];
+
+    const pose=mode==="normal"
+      ?"standing upright, facing directly forward, shoulders square to camera, looking straight into camera, chest-up portrait"
+      :document.getElementById("pose").selectedOptions[0].value+", waist-up portrait";
+
+    const color=document.getElementById("color").value;
+    const prompt=`
+      Photorealistic professional football player portrait photography.
+      One fictional adult male footballer, clearly 21 years old or older.
+      ${pose}.
+      Wearing a ${document.getElementById("kit").value}.
+      Main uniform color: ${color}.
+      ${document.getElementById("sleeves").value}.
+      ${document.getElementById("collar").value}.
+      Additional details: ${document.getElementById("details").value}.
+      Background: ${document.getElementById("background").value}.
+      Premium football media day photography, realistic skin texture,
+      sharp facial detail, professional lighting, centered composition.
+      Generic original uniform only.
+      Absolutely no club crests, logos, sponsors, brands, numbers,
+      letters, watermarks or readable text.
+      Do not depict a real or famous footballer.
+    `;
+
+    const img=await puter.ai.txt2img(prompt,{
+      provider:"cloudflare",
+      model:"@cf/black-forest-labs/flux-1-schnell",
+      steps:4
+    });
+
+    if(!img || !img.src) throw new Error("No se recibió una imagen.");
+
+    imageUrl=img.src;
+    document.getElementById("result").src=imageUrl;
+    document.getElementById("result").style.display="block";
+    document.getElementById("empty").style.display="none";
+    document.getElementById("download").disabled=false;
+
+  }catch(err){
+    console.error(err);
+    showError("No se pudo generar. Comprueba tu sesión y la cuota gratuita de Puter. "+(err.message||""));
+  }finally{
+    btn.disabled=false;
+    document.getElementById("loader").style.display="none";
+  }
+}
+
+function showError(msg){
+  const el=document.getElementById("error");
+  el.textContent=msg;
+  el.style.display="block";
+}
+
+async function downloadImage(){
+  if(!imageUrl)return;
+  try{
+    const response=await fetch(imageUrl);
+    if(!response.ok)throw new Error("Descarga no disponible");
+    const blob=await response.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download="eleven-player.png";
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+  }catch(e){
+    window.open(imageUrl,"_blank");
+    showError("Se abrió la imagen en otra pestaña. Puedes guardarla desde allí.");
+  }
+}
+</script>
+</body>
+</html>
